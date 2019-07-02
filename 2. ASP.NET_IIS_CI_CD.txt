@@ -11,11 +11,12 @@ https://docs.microsoft.com/en-us/azure/devops/pipelines/apps/cd/deploy-webdeploy
 
 二.	Builds (Pipelines) --- 可参考 ASP.NET.yml 文件
 https://www.youtube.com/watch?v=jRgLSMlp28U
+https://docs.microsoft.com/en-nz/azure/devops/pipelines/apps/aspnet/build-aspnet-4?view=azure-devops
 
 1.	创建一个new build in Pipelines 	(如果没有, 就需要admin添加)
 2.	Pipelines -> Builds -> New pipeline
 3.	Connect ->  选择哪个Git资源 (Azure Repos Git) 
-4).	Select -> 选择哪个 Repos
+4.	Select -> 选择哪个 Repos
 5.	Configure -> 选择哪个环境的template (ASP.NET)
 6.	Review YAML -> 有点像Python 
 (注:	a.	indentation 缩进是很重要的一块, 对于这个代码
@@ -28,23 +29,26 @@ https://www.youtube.com/watch?v=jRgLSMlp28U
 	a.	如果你选择 ASP.NET , 在 yaml 就会自动生成一个 VSTest@2, 
 	需要移除这个task, 不然会报错(因为找不到这个 package)
 	
-	b.	当new build 完成时, 就会建立一个 azure-pipelines.yml 到项目里.
-		修改它就会更新你想要的build.
+	b.	可以修改 yaml 底下的 variables ->  buildConfiguration: 'Debug' 或 'Release' 的 Web.config. 
+		告诉应该Azure DevOps 用哪个 Web.config 去build 代码 
+	
+	c.	当new build 完成时, 就会建立一个 azure-pipelines.yml 到项目里.
+		修改它就会更新你的代码, 记得pull 这个更新
 		
-	c.	当每次commit 代码到对应的branch, 就会生成一个新的build
+	d.	当每次commit 代码到对应的branch, 就会生成一个新的build
 
+	e.	生成完 artifacts, 可以在 menu 里看到 Status badge 
 ------------------------------------------------------------------------------------------
 
 三.	创建一个 Deployment Groups / Deployment Pools (IIS deployment 需要 Deployment groups 支持)
-0.	参考:	https://docs.microsoft.com/en-us/azure/devops/pipelines/apps/cd/deploy-webdeploy-iis-deploygroups?view=azure-devops
-
+https://docs.microsoft.com/en-us/azure/devops/pipelines/release/deployment-groups/?view=azure-devops
 1.	理论:	
 (1)	Deployment Pool:	是项目中的 deployment 资源, 主要包括 agent pool
 
 (2)	Deployment Group:	是项目里的 deployment team, 如何去 release management, 所以每个项目有不同的 deployment groups.
 						每个	Deployment Groups 需要 一个 Deployment Pool 去支持 (可以 shared Deployment Pool)
 
-						
+2.	实际操作							
 方法一:	直接建立deployment Groups 
 (1)	Pipelines -> Deployment groups	-> 切换到 Available pools 
 (2)	在 Deployment pool 里面 "+" -> Create deployment group (如果没有 Available pools 可以直接建立 Deployment Groups)
@@ -52,35 +56,49 @@ https://www.youtube.com/watch?v=jRgLSMlp28U
 (3.1)	(如果没有 Deployment pool) ->  切回 Deployment groups	-> Create deployment group -> 写上name -> create
 (3.2)	在 Register machine -> 	确认 Windows 被选上 和	Use a personal access token in the script for authentication 被选上
 		点击	Copy script to clipboard
-
 注:	如果"Use a personal access token in the script for authentication" 没被选上, 需要自己去配置 personal access token 
 
 (3.3)	到服务器上的machine -> 搜 PowerShell -> 右键 -> runs as Administrator -> 黏贴 Register machine 的 Script
-
 (3.4) 	都是enter, 除非 想要 自定的 tag 和 这个 VM (虚拟机) 上 user account
 注:	这里会自动生成一个 "azagent" 在你的系统盘
-
 
 方法二:	自定义的  self-host agent 
 1.	先建立一个 agent pools (可以自己定义路径等)
 https://www.youtube.com/watch?v=clYtH6RQ_KI&t=338s
+https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/agents?view=azure-devops
 
 2.	建立一个 Deployment Pool (这个需要 MS Azure admin的权限) 
+https://docs.microsoft.com/en-us/azure/devops/pipelines/release/deployment-groups/?view=azure-devops
 
 3.	target 这个 deployment pool 到 对应的   self-host agent
 
 ---------------------------------------------------------------------------------------------------------------
 
 四.	Releases
+0.
+(1)	Stage：	https://docs.microsoft.com/en-us/azure/devops/pipelines/apps/cd/deploy-webdeploy-iis-deploygroups?view=azure-devops
+
+(2)	(只看 artifact) https://docs.microsoft.com/en-us/azure/devops/pipelines/apps/cd/deploy-webdeploy-iis-winrm?view=azure-devops
 
 1.	Pipelines -> Releases -> New pipeline -> 写上名字 (in Stages)
 	或 直接点击 release 在那个build 里面有个  release
-	
+
 2.	点 Add an artifact-> 选择 Source (Repos)
-3.	一旦完成, 在 artifact 上有个小闪电 (可以设置 trigger)
-4.	enable 第一个 -> Build branch filters -> 就可以建立每次build 完都可以跑一次 release
+3.	一旦完成, 在 artifact 上有个小闪电 (可以设置 trigger, 比如 branch 更新, 就会 build 一遍)
 
-6.	Create release ->
+3.1	enable 第一个 -> Build branch filters -> 就可以建立每次code commit 完都跑一次 build
 
-九.	提示:
-1.	Status badge
+4.	在 stages -> +Add (new stage)-> IIS website deployment 
+	(注:	这里需要MS Azure 的 admin 已经安装 Deploy: WinRM - IIS Web App Deployment)
+
+5.	4就会生成 1 job 和2 tasks -> 点taks -> IIS Deployment -> 选择 Deployment group
+
+6.	点taks -> IIS Web App Manage -> physical path: %SystemDrive%\git\Demo\TraveWhiz 
+	注:	%SystemDrive% 就是系统的盘, 比如我们的电脑就是 C：Drive
+	
+7.	点taks -> IIS Web App Deploy ->	Package or Folder 选择 Package (比如, Web.zip)
+	注:	这里可以选择 artifacts的路径
+
+8.	点 -> Create release 
+
+9.	release 成功后, 可以回到 Releases -> 点 stage 上面的小闪电 -> 可以配置 trigger (选择 after release, 则每次build完后就自动release) 
