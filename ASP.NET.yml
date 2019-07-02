@@ -30,8 +30,7 @@ steps:
     configuration: '$(buildConfiguration)'
 
 - task: PublishBuildArtifacts@1
-  displayName: 'drop'
   inputs:
-    pathtoPublish: $(Build.ArtifactStagingDirectory)
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'

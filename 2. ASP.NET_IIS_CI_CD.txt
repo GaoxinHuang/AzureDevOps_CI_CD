@@ -1,12 +1,12 @@
 https://www.youtube.com/watch?v=jRgLSMlp28U
+
+
 一.	准备动作
 1.	有一个项目, 这个项目已配置到 Azure DevOps 
-2.	需要  Microsoft test platform??
+2.	必须要求 Azure DevOps 的admin 允许你添加, 如果你 deploy到IIS上：
+(1).	Deploy: WinRM - IIS Web App Deployment
 
-3.	理论
-
-
-二.	Pipelines 实际操作
+二.	Builds (Pipelines)
 
 ---Builds---
 1.	创建一个new build in Pipelines 	(如果没有, 就需要admin添加)
@@ -17,12 +17,14 @@ https://www.youtube.com/watch?v=jRgLSMlp28U
 6.	Review YAML -> 有点像Python 
 (注:	a.	indentation 缩进是很重要的一块, 对于这个代码
 	b.	一般最顶上的注释有文档的链接, 可以查看)
-	
+
 7.	可以添加 task, 比如 publish build artfacts
 
 
 注(总):
-	a.	如果你选择 ASP.NET (MVC的项目), 在 yaml 就会自动生成一个 VSTest@2
+	a.	如果你选择 ASP.NET (MVC的项目), 在 yaml 就会自动生成一个 VSTest@2, 
+	需要移除这个task, 不然会报错(因为找不到这个 package)
+	
 	b.	当new build 完成时, 就会建立一个 azure-pipelines.yml 到项目里.
 		修改它就会更新你想要的build
 	c.	当每次commit 代码到对应的branch, 就会生成一个新的build
@@ -36,7 +38,6 @@ https://www.youtube.com/watch?v=jRgLSMlp28U
 4.	enable 第一个 -> Build branch filters -> 就可以建立每次build 完都可以跑一次 release
 
 6.	Create release ->
-
 
 九.	提示:
 1.	Status badge

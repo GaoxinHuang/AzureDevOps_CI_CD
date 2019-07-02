@@ -1,0 +1,23 @@
+https://www.youtube.com/watch?v=jRgLSMlp28U
+
+一.	理论:
+(1).	Edit code and save code 
+
+(2).	Commit/push to Git (Azure DevOps)
+
+(3).	Build Artifacts (就是生成 release code) + Tests
+注: 步骤(3)得在 Azure DevOps 里做, 并且生成一个 artifacts 在 Azure DevOps cloud 上
+
+(4).	Release Management 
+注: 这里控制生成的 artifacts 应该怎么发布, 以下有几种情况：
+情况一:	如果选择直接发布到IIS, 从artifacts 中提取 IIS 需要的文件, 发布到你想要发布的 folder底下 
+情况二:	如果选择直接发布到MS Azure, 从 artifacts 中提取 MS Azure 需要的文件, 发布到你想要发布的 folder底下 
+
+(5).	MS Azure 或 IIS 底下的网站就更新了
+
+总结:		不同类型的projects (NodeJS, .Net Core, .Net MVC) 
+		其实 在 Azure DevOps 上就是不同的 Build 和 Release
+
+二.	准备动作
+1.	有一个项目, 这个项目已配置到 Azure DevOps 
+2.	必须要求 Azure DevOps 的admin 允许你添加, 如果你 deploy到IIS上：
