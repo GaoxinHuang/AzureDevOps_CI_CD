@@ -60,7 +60,8 @@ https://docs.microsoft.com/en-us/azure/devops/pipelines/release/deployment-group
 
 (3.3)	到服务器上的machine -> 搜 PowerShell -> 右键 -> runs as Administrator -> 黏贴 Register machine 的 Script
 (3.4) 	都是enter, 除非 想要 自定的 tag 和 这个 VM (虚拟机) 上 user account
-注:	这里会自动生成一个 "azagent" 在你的系统盘
+注:	a.	这里会自动生成一个 "azagent" 在你的系统盘
+	b.	!不管方法一还是方法二, 都会生成一个 Services 在你的系统上叫做 "Azure Pipelines Agent (组织名.项目名.agent名)"
 
 方法二:	自定义的  self-host agent 
 1.	先建立一个 agent pools (可以自己定义路径等)
