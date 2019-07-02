@@ -1,14 +1,17 @@
-https://www.youtube.com/watch?v=jRgLSMlp28U
+https://docs.microsoft.com/en-us/azure/devops/pipelines/apps/cd/deploy-webdeploy-iis-deploygroups?view=azure-devops
 
+0.	因为 deploy IIS, 需要自己做 agent. 
 
 一.	准备动作
 1.	有一个项目, 这个项目已配置到 Azure DevOps 
 2.	必须要求 Azure DevOps 的admin 允许你添加, 如果你 deploy到IIS上：
 (1).	Deploy: WinRM - IIS Web App Deployment
 
-二.	Builds (Pipelines)
+------------------------------------------------------------------
 
----Builds---
+二.	Builds (Pipelines) --- 可参考 ASP.NET.yml 文件
+https://www.youtube.com/watch?v=jRgLSMlp28U
+
 1.	创建一个new build in Pipelines 	(如果没有, 就需要admin添加)
 2.	Pipelines -> Builds -> New pipeline
 3.	Connect ->  选择哪个Git资源 (Azure Repos Git) 
@@ -18,18 +21,58 @@ https://www.youtube.com/watch?v=jRgLSMlp28U
 (注:	a.	indentation 缩进是很重要的一块, 对于这个代码
 	b.	一般最顶上的注释有文档的链接, 可以查看)
 
-7.	可以添加 task, 比如 publish build artfacts
-
+7. 	在review的时候, 记得要添加 publish Build artifacts 的 task, 
+	这样才会真正 build code 和 生成  artifacts
 
 注(总):
-	a.	如果你选择 ASP.NET (MVC的项目), 在 yaml 就会自动生成一个 VSTest@2, 
+	a.	如果你选择 ASP.NET , 在 yaml 就会自动生成一个 VSTest@2, 
 	需要移除这个task, 不然会报错(因为找不到这个 package)
 	
 	b.	当new build 完成时, 就会建立一个 azure-pipelines.yml 到项目里.
-		修改它就会更新你想要的build
+		修改它就会更新你想要的build.
+		
 	c.	当每次commit 代码到对应的branch, 就会生成一个新的build
 
----Releases---
+------------------------------------------------------------------------------------------
+
+三.	创建一个 Deployment Groups / Deployment Pools (IIS deployment 需要 Deployment groups 支持)
+0.	参考:	https://docs.microsoft.com/en-us/azure/devops/pipelines/apps/cd/deploy-webdeploy-iis-deploygroups?view=azure-devops
+
+1.	理论:	
+(1)	Deployment Pool:	是项目中的 deployment 资源, 主要包括 agent pool
+
+(2)	Deployment Group:	是项目里的 deployment team, 如何去 release management, 所以每个项目有不同的 deployment groups.
+						每个	Deployment Groups 需要 一个 Deployment Pool 去支持 (可以 shared Deployment Pool)
+
+						
+方法一:	直接建立deployment Groups 
+(1)	Pipelines -> Deployment groups	-> 切换到 Available pools 
+(2)	在 Deployment pool 里面 "+" -> Create deployment group (如果没有 Available pools 可以直接建立 Deployment Groups)
+
+(3.1)	(如果没有 Deployment pool) ->  切回 Deployment groups	-> Create deployment group -> 写上name -> create
+(3.2)	在 Register machine -> 	确认 Windows 被选上 和	Use a personal access token in the script for authentication 被选上
+		点击	Copy script to clipboard
+
+注:	如果"Use a personal access token in the script for authentication" 没被选上, 需要自己去配置 personal access token 
+
+(3.3)	到服务器上的machine -> 搜 PowerShell -> 右键 -> runs as Administrator -> 黏贴 Register machine 的 Script
+
+(3.4) 	都是enter, 除非 想要 自定的 tag 和 这个 VM (虚拟机) 上 user account
+注:	这里会自动生成一个 "azagent" 在你的系统盘
+
+
+方法二:	自定义的  self-host agent 
+1.	先建立一个 agent pools (可以自己定义路径等)
+https://www.youtube.com/watch?v=clYtH6RQ_KI&t=338s
+
+2.	建立一个 Deployment Pool (这个需要 MS Azure admin的权限) 
+
+3.	target 这个 deployment pool 到 对应的   self-host agent
+
+---------------------------------------------------------------------------------------------------------------
+
+四.	Releases
+
 1.	Pipelines -> Releases -> New pipeline -> 写上名字 (in Stages)
 	或 直接点击 release 在那个build 里面有个  release
 	
