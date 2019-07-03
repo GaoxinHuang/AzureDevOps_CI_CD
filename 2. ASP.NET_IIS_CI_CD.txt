@@ -10,6 +10,7 @@ https://docs.microsoft.com/en-us/azure/devops/pipelines/apps/cd/deploy-webdeploy
 ------------------------------------------------------------------
 
 二.	Builds (Pipelines) --- 可参考 ASP.NET.yml 文件
+
 https://www.youtube.com/watch?v=jRgLSMlp28U
 https://docs.microsoft.com/en-nz/azure/devops/pipelines/apps/aspnet/build-aspnet-4?view=azure-devops
 
@@ -32,12 +33,14 @@ https://docs.microsoft.com/en-nz/azure/devops/pipelines/apps/aspnet/build-aspnet
 	b.	可以修改 yaml 底下的 variables ->  buildConfiguration: 'Debug' 或 'Release' 的 Web.config. 
 		告诉应该Azure DevOps 用哪个 Web.config 去build 代码 
 	
-	c.	当new build 完成时, 就会建立一个 azure-pipelines.yml 到项目里.
-		修改它就会更新你的代码, 记得pull 这个更新
+	c.	在review时, 右上角会有一个 dropdown list 选择哪个branch 要run. (切换不同branch, buil的也不同)
+	
+	d.	当new build 完成时, 就会建立一个 azure-pipelines.yml 到项目里, 不同的branch有不同的 azure-pipelines.yml 
+		记得pull 这个更新
 		
-	d.	当每次commit 代码到对应的branch, 就会生成一个新的build
-
-	e.	生成完 artifacts, 可以在 menu 里看到 Status badge 
+	e.	当每次commit 代码到对应的branch, 就会生成一个新的build (有这个yml文件在这个branch才会自动 build, 没有就不会)
+	
+	f.	生成完 artifacts, 可以在 menu 里看到 Status badge 
 ------------------------------------------------------------------------------------------
 
 三.	创建一个 Deployment Groups / Deployment Pools (IIS deployment 需要 Deployment groups 支持)
@@ -81,11 +84,14 @@ https://docs.microsoft.com/en-us/azure/devops/pipelines/release/deployment-group
 
 (2)	(只看 artifact) https://docs.microsoft.com/en-us/azure/devops/pipelines/apps/cd/deploy-webdeploy-iis-winrm?view=azure-devops
 
-1.	Pipelines -> Releases -> New pipeline -> 写上名字 (in Stages)
+1.1	选中之前build过的 -> 点击进去看details -> 点 Release (推荐, 因为更稳定)
+或
+1.2	Pipelines -> Releases -> New pipeline -> 写上名字 (in Stages)
 	或 直接点击 release 在那个build 里面有个  release
 
 2.	点 Add an artifact-> 选择 Source (Repos)
-3.	一旦完成, 在 artifact 上有个小闪电 (可以设置 trigger, 比如 branch 更新, 就会 build 一遍)
+3.	一旦完成, 在 artifact 上有个小闪电 
+(可以设置 trigger,比如 哪个branch更新(build 完), 等这个branch的build完,就会触发 release(agent)获取最新的Artifacts, 继而有可能触发 deployment 功能)
 
 3.1	enable 第一个 -> Build branch filters -> 就可以建立每次code commit 完都跑一次 build
 
