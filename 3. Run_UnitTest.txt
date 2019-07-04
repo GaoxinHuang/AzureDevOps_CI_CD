@@ -17,7 +17,7 @@
 (1) 可以VSBuild (记得从这个task里) 看, 测试文件被分配到 
 d:\a\1\s\PerformanceReviewApplication.Tests\bin\Debug\PerformanceReviewApplication.Tests.dll
 
-(2) searchFolder: '$(System.DefaultWorkingDirectory)'  -> 这个就是指向 d:\a\1\s\
+(2) (默认)searchFolder: '$(System.DefaultWorkingDirectory)'  -> 这个就是指向 d:\a\1\s\
 
 (3) testAssemblyVer2: **/bin/**/**Tests.dll 就是能match 上 PerformanceReviewApplication.Tests\bin\Debug\PerformanceReviewApplication.Tests.dll
 
