@@ -1,0 +1,26 @@
+一.	概念:
+1.	把这个测试的动作做在Build里面, 而且不是在 releases 里. 
+	好处: (1).	会收到Build 的 email. (2).	减少后面的流程和资源
+	
+2.	在 VSBuild 里面, 这个测试 (VSTest)的操作应该在 PublishBuildArtifact 之前, VSBuild之后
+
+二.	实际操作
+1.	准备动作 
+	Install-Package NUnitTestAdapter (NUnit3TestAdapter)到你的 test 项目底下 
+	(注:	不然AzureDevOps里的VS 读不出 NUnit Test) 
+
+2.	在 Build 里面选择的 template 是 Visual Studio Test 
+
+3.	这里最重要要填写的是 testAssemblyVer2 的值(yml里) 或 Test files(Visual Studio Test )  --- 其实就是测试文件的路径
+
+举例 (详见 UnitTest.yml):
+(1) 可以VSBuild (记得从这个task里) 看, 测试文件被分配到 
+d:\a\1\s\PerformanceReviewApplication.Tests\bin\Debug\PerformanceReviewApplication.Tests.dll
+
+(2) searchFolder: '$(System.DefaultWorkingDirectory)'  -> 这个就是指向 d:\a\1\s\
+
+(3) testAssemblyVer2: **/bin/**/**Tests.dll 就是能match 上 PerformanceReviewApplication.Tests\bin\Debug\PerformanceReviewApplication.Tests.dll
+
+或	testAssemblyVer2: **/$(buildConfiguration)/**/**Tests.dll
+注: 这里的 "\" 和 "/" 不是很重要, 在windows 服务器上
+
